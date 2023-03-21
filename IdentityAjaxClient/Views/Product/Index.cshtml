@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="containerfluid">
+    <h2>Product List</h2>
+    <div>
+        <a href="/Product/Create"><button class="btn btn-success">Create Product</button></a>
+    </div>
+    <table class="table table-sm table-striped table-bordered m-2">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Quanity</th>
+                <th>Unit Price</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<img style="wid"/>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        ShowAllProducts();
+
+        function ShowAllProducts() {
+            $("table tbody").html("");
+            $.ajax({
+                url: "http://localhost:5218/api/Products",
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result, status, xhr) {
+                    $.each(result, function(index, value){
+                        $("tbody").append($("<tr>"));
+                        appendElement = $("tbody tr").last();
+                        appendElement.append($("<td>").html(value["productId"]));
+                        appendElement.append($("<td>").html(value["productName"]));
+                        appendElement.append($("<td>").html(value["unitsInStock"]));
+                        appendElement.append($("<td>").html(value["unitPrice"]));
+                        appendElement.append($("<td>").html("<a href=\"/Product/Edit?id=" + 
+                            value["productId"] + "\"><img style=\"width: 20px; height: 20px\" src=\"https://icons.veryicon.com/png/o/miscellaneous/linear-small-icon/edit-246.png\" /></a>"));
+                        appendElement.append($("<td>").html("<img style=\"width: 20px; height: 20px\" class=\"delete\" src=\"https://cdn-icons-png.flaticon.com/512/1214/1214428.png\" />"));
+                    })
+                },
+                error: function (xhr, status, error){
+                    console.log(xhr);
+                }
+            });
+        }
+
+        $("table").on("click", "img.delete", function() {
+            var productId = $(this).parents("tr").find("td:nth-child(1)").text();
+
+            $.ajax({
+                url: "http://localhost:5218/api/Products/" + productId,
+                type: "DELETE",
+                contentType: "application/json; charset=utf-8",
+                success: function (result, status, xhr) {
+                    ShowAllProducts();
+                },
+                error: function (xhr, status, error){
+                    console.log(xhr);
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Index</h2>
+</body>
+</html>
+
+<script>
+$(document).ready(function () {
+  loadProductList();
+});
+
+function loadProductList() {
+  $.ajax({
+    url: "http://localhost:5111/api/Products",
+    type: "GET",
+    dataType: "json",
+    timeout: 5000,
+    success: function (response) {
+      render(response)
+    },
+    
+    error: function(response){
+      handleError(response, "Can not load products");
+    }
+  });
+}
+
+function getCategoryName(categoryId) {
+  $.ajax({
+    url: "http://localhost:5111/api/Categories/"+categoryId,
+    type: "GET",
+    dataType: "json",
+    timeout: 5000,
+    success: function (response) {
+      return response;
+    },
+    error: function(response){
+      handleError(response, "Can not load products");
+    }
+  });
+}
+
+function render(response){
+    response.forEach(product => {
+        $("body").append(`  <div class="col mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${product.productName}</h5>
+                                        <p class="card-text">Unit Price: ${
+                                            product.unitPrice
+                                        }</p>
+                                        <p class="card-text">Units In Stock: ${
+                                            product.unitsInStock
+                                        }</p>
+                                        <a href="category.html?id=${product.productId}">${product.categoryId}</a>
+                                    </div>
+                                </div>
+                            </div>` )
+    });
+}
+</script>

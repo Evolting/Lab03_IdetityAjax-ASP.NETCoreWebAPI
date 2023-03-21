@@ -1,0 +1,110 @@
+﻿@model BusinessObjects.Product
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<form method="post" id="editForm">
+  <input type="hidden" asp-for="ProductId" value="@ViewBag.Id" />
+  <input type="hidden" class="form-control" id="CateId" value="">
+  <div class="form-group">
+    <label for="exampleFormControlInput1">Product Name</label>
+    <input type="text" class="form-control" name="ProductName" id="ProductName" placeholder="Enter product name...">
+  </div>
+  <div class="form-group">
+    <label for="exampleFormControlSelect1">Category</label>
+    <select class="form-control" id="CategoryId" name="CategoryId">
+
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="exampleFormControlInput2">UnitsInStock</label>
+    <input type="number" name="UnitsInStock" class="form-control" id="UnitsInStock"  min="0">
+  </div>
+  <div class="form-group">
+    <label for="exampleFormControlInput3">Unit Price</label>
+    <input type="number" name="UnitPrice" step="any" class="form-control" id="UnitPrice" min="0">
+  </div>
+  <div class="form-group">
+    <input class="mt-1 btn btn-success" type="submit" value="Submit">
+  </div>
+</form>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        ShowProductData();
+
+        function ShowProductData() {
+            //get products by productId
+            var productId = $("#ProductId").val();
+            $.ajax({
+                url: "http://localhost:5218/api/Products/" + productId,
+                type: "GET",
+                success: function (data) {
+                    var product = data;
+                    $("#ProductName").val(product.productName);
+                    $("#CateId").val(product.categoryId);
+                    ShowCategories(product.categoryId)
+                    $("#UnitPrice").val(product.unitPrice);
+                    $("#UnitsInStock").val(product.unitsInStock);
+                },
+                error: function (data) {
+                    alert("Error while getting product");
+                }
+            });
+
+        }
+
+        function ShowCategories(id){
+            //load categories select option
+            $.ajax({
+                url: "http://localhost:5218/api/Categories",
+                type: "GET",
+                success: function (data) {
+                    var categories = data;
+                    var options = "";
+                    for (var i = 0; i < categories.length; i++) {
+                        var isSelected = (i == id-1);
+                        if(isSelected){
+                            options += "<option value='" + categories[i].categoryId + "' selected>" + categories[i].categoryName + "</option>";
+                        }
+                        else{
+                            options += "<option value='" + categories[i].categoryId + "'>" + categories[i].categoryName + "</option>";
+                        }
+                    }
+                    $("#CategoryId").append(options);
+                },
+                error: function (data) {
+                    alert("Error while getting categories");
+                }
+            });
+        }
+
+         $("#editForm").on('submit', function (event){
+            var product = {
+                productId: $("#ProductId").val(),
+                productName: $("#ProductName").val(),
+                categoryId: $("#CategoryId").val(),
+                unitPrice: $("#UnitPrice").val(),
+                unitsInStock: $("#UnitsInStock").val()
+            }
+
+            $.ajax({
+                //prevent reload on ajax
+                url: "http://localhost:5218/api/Products",
+                type: "PUT",
+                data: JSON.stringify(product),
+                contentType: "application/json",
+                success: function (data) {
+                    //prevent reload 
+                    alert("Product updated successfully!!");
+                },
+                error: function (data) {
+                    alert("Error while updating product!!") ;             
+                }
+            });
+         });
+
+    });
+</script>
